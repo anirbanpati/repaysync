@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.swp
+*~ 
+venv/
+env/
+ENV/
+.venv/
+build/
+dist/
+
+# Django stuff
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.py,cover
+db.sqlite3
+
+# If using a secrets .env file
+.env
+
+# If using coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Docker
+*.env
+docker-compose.override.yml
+# Docker volumes, if you store them locally:
+volumes/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Egg info
+*.egg-info
+.eggs/
+
+# Node modules (if using Node for front-end)
+node_modules/
