@@ -19,9 +19,9 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
-        # Ensure the default add/change/delete/view permissions are created
+      
         default_permissions = ('add', 'change', 'delete', 'view')
-        # Optionally define custom permissions
+    
         permissions = [
             ("can_access_special_feature", "Can Access Special Feature"),
             ("can_view_reports", "Can View Reports"),

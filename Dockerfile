@@ -1,7 +1,7 @@
-# Use an official Python runtime as a parent image
+
 FROM python:3.9-slim
 
-# Prevent Python from writing pyc files to disc & buffer stdout/stderr
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 

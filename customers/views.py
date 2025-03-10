@@ -1,3 +1,5 @@
+# customers/views.py
+
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -9,19 +11,33 @@ from .models import Customer
 from .serializers import CustomerSerializer
 from .permissions import IsCustomerAccessible
 
+
 class CustomerListCreateView(generics.ListCreateAPIView):
     """
     GET: Lists customers.
-         - Both calling agents and field collectors see only customers assigned to them.
+         - If user.role == 'calling_agent', see ALL customers.
+         - Otherwise, see only those assigned to them.
+
     POST: Creates a new customer.
-         - The current user is automatically set as the assigned_collection_officer.
+         - The current user is automatically set as the assigned_collection_officer (if desired).
     """
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Customer.objects.filter(assigned_collection_officer=user)
+        if user.role == 'calling_agent':
+            # Calling agents see ALL customers
+            return Customer.objects.all()
+        else:
+            # Field officers/managers see only customers assigned to them
+            return Customer.objects.filter(assigned_collection_officer=user)
+
+    def perform_create(self, serializer):
+        # Automatically assign the currently logged-in user
+        # as the assigned_collection_officer, if that's desired:
+        serializer.save(assigned_collection_officer=self.request.user)
+
 
 class CustomerCreateView(generics.CreateAPIView):
     """
@@ -31,24 +47,28 @@ class CustomerCreateView(generics.CreateAPIView):
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
 
+
 class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: Retrieve a specific customer's details.
     PUT/PATCH: Update customer information.
     DELETE: Remove a customer.
-    Uses custom permission 'IsCustomerAccessible'.
+
+    Uses custom permission 'IsCustomerAccessible' to ensure that only the
+    collection officer (i.e., the user assigned to the customer) can access it.
     """
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated, IsCustomerAccessible]
     lookup_field = 'id'
 
+
 class BulkCustomerUploadView(generics.GenericAPIView):
     """
     Endpoint for bulk uploading customers via CSV.
-    
+
     Expected CSV columns:
-      - customer_code (optional, if not provided, auto-generation will occur),
+      - customer_code (optional, auto-generated if omitted),
       - name,
       - phone,
       - email,
@@ -57,9 +77,9 @@ class BulkCustomerUploadView(generics.GenericAPIView):
       - city,
       - state,
       - pincode,
-      - date_of_birth (format: YYYY-MM-DD)
-    
-    Automatically assigns the current user as the assigned_collection_officer.
+      - date_of_birth (YYYY-MM-DD)
+
+    Automatically assigns the current user as the collection officer for all records.
     """
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
@@ -76,7 +96,6 @@ class BulkCustomerUploadView(generics.GenericAPIView):
             for index, row in df.iterrows():
                 try:
                     customer_data = {
-                        # If customer_code is not provided, the model default will auto-generate one.
                         'customer_code': row.get('customer_code', None),
                         'name': row['name'],
                         'phone': row.get('phone', ''),
