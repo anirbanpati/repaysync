@@ -2,21 +2,99 @@
 
 *March 10, 2025*
 
+# Local Setup Guide
+
+## Prerequisites
+- Python 3.9 or higher
+- PostgreSQL 13
+- Git
+- pip (Python package manager)
+
+## Installation Steps
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/anirbanpati/repaysync.git
+cd repaysync
+```
+
+### 2. Set up a virtual environment
+```bash
+# On Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# On macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure PostgreSQL database
+- Create a new PostgreSQL database:
+```bash
+# Connect to PostgreSQL
+psql -U postgres
+
+# Create database and user (inside PostgreSQL shell)
+CREATE DATABASE repaysync_db;
+CREATE USER repaysync_user WITH PASSWORD 'repaysync_pass';
+GRANT ALL PRIVILEGES ON DATABASE repaysync_db TO repaysync_user;
+\q
+```
+
+### 5. Apply migrations
+```bash
+python manage.py migrate
+```
+
+### 6. Create a superuser (admin)
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Run the server
+```bash
+python manage.py runserver
+```
+The API will be available at: http://127.0.0.1:8000/
+
+## Docker Setup (Alternative)
+
+If you prefer using Docker:
+
+### 1. Clone the repository
+```bash
+git clone https://your-repository-url/repaysync.git
+cd repaysync
+```
+
+### 2. Build and run with Docker Compose
+```bash
+docker-compose up --build
+```
+The API will be available at: http://127.0.0.1:8000/
+
 ---
 
 ## Table of Contents
-1. [Introduction](#1-introduction)
-2. [Base URL](#2-base-url)
-3. [Authentication Endpoints](#3-authentication-endpoints)
-4. [Users Endpoints](#4-users-endpoints)
-5. [Customers Endpoints](#5-customers-endpoints)
-6. [Loans Endpoints](#6-loans-endpoints)
-7. [Interactions Endpoints](#7-interactions-endpoints)
-8. [Logs Endpoints](#8-logs-endpoints)
-9. [Common Headers](#9-common-request-and-response-headers)
-10. [Error Handling](#10-error-handling)
-11. [Summary Table of Endpoints](#11-summary-table-of-endpoints)
-12. [Additional Notes](#12-additional-notes)
+1. [Local Setup Guide](#local-setup-guide)
+2. [Introduction](#1-introduction)
+3. [Base URL](#2-base-url)
+4. [Authentication Endpoints](#3-authentication-endpoints)
+5. [Users Endpoints](#4-users-endpoints)
+6. [Customers Endpoints](#5-customers-endpoints)
+7. [Loans Endpoints](#6-loans-endpoints)
+8. [Interactions Endpoints](#7-interactions-endpoints)
+9. [Logs Endpoints](#8-logs-endpoints)
+10. [Common Headers](#9-common-request-and-response-headers)
+11. [Error Handling](#10-error-handling)
+12. [Summary Table of Endpoints](#11-summary-table-of-endpoints)
+13. [Additional Notes](#12-additional-notes)
 
 ---
 
