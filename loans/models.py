@@ -1,5 +1,6 @@
 from django.db import models
 from customers.models import Customer
+from django.core.exceptions import ValidationError
 
 # Optional: define loan type choices
 LOAN_TYPE_CHOICES = (
@@ -24,11 +25,14 @@ class Loan(models.Model):
     )
     tenure_months = models.PositiveIntegerField(null=True, blank=True)
     loan_date = models.DateField(null=True, blank=True)
+    
+    # GSTN and MSME URN fields
+    gstn = models.CharField(max_length=15, blank=True, null=True, verbose_name="GST Number")
+    msme_urn = models.CharField(max_length=16, blank=True, null=True, verbose_name="MSME Udyam Registration Number")
 
-    # ForeignKey to associate this loan with a single customer
-    customer = models.ForeignKey(
+    # Replace ForeignKey with ManyToManyField to allow multiple customers
+    customers = models.ManyToManyField(
         Customer,
-        on_delete=models.CASCADE,
         related_name='loans'
     )
 
@@ -36,4 +40,15 @@ class Loan(models.Model):
         default_permissions = ('add', 'change', 'delete', 'view')
 
     def __str__(self):
-        return f"Loan {self.loan_account_number} - {self.customer.name}"
+        customers_str = ", ".join([customer.name for customer in self.customers.all()[:3]])
+        return f"Loan {self.loan_account_number} - {customers_str}"
+    
+    def clean(self):
+        # Validate that there are no more than 3 customers per loan
+        if self.pk and self.customers.count() > 3:
+            raise ValidationError("A loan cannot have more than 3 customers.")
+        super().clean()
+    
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)

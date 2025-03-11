@@ -1,7 +1,10 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .models import Loan
 from .serializers import LoanSerializer
+from customers.models import Customer
 
 class LoanListCreateView(generics.ListCreateAPIView):
     queryset = Loan.objects.all()
@@ -14,8 +17,6 @@ class LoanDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
-
-
 class CustomerLoanListView(generics.ListAPIView):
     """
     Lists all loans for a specific customer.
@@ -25,4 +26,5 @@ class CustomerLoanListView(generics.ListAPIView):
 
     def get_queryset(self):
         customer_id = self.kwargs.get('customer_id')
-        return Loan.objects.filter(customer_id=customer_id)
+        customer = get_object_or_404(Customer, id=customer_id)
+        return customer.loans.all()
